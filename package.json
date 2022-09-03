@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:server": "nodemon --watch '**/*.ts' --exec 'ts-node' App.ts"
+    "dev:server": "nodemon --watch '**/*.ts' --exec 'ts-node' App.ts",
+    "start": "ts-node App.ts"
   },
   "keywords": [],
   "author": "",

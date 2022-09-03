@@ -64,8 +64,16 @@ DATABASE_USER=user
 
 ## Initialization Server
 
-develop server
+**Precation:**
+Sure that hls-api is work
+
+
+develop server:
 ```bash
   npm run dev:server
 ```
 
+start server:
+```bash
+  npm run start
+```

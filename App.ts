@@ -19,10 +19,15 @@ export class ServerSocketConnection {
   }
 
   startConnection() {
-    this.socket.connect(<any>{
-      host: process.env.HLS_HOST,
-      port: process.env.HLS_PORT,
-    });
+    try {
+      this.socket.connect(<any>{
+        host: process.env.HLS_HOST,
+        port: process.env.HLS_PORT,
+      });
+    } catch (e: any) {
+      console.error("Server HLS not connected...");
+      console.log(e.message);
+    }
   }
 
   converVideo(nameVideo: string) {
@@ -51,6 +56,7 @@ class Server {
     this.middlewares();
     this.routers();
     this.serverSocket.startConnection();
+
   }
 
   middlewares() {
