@@ -6,6 +6,7 @@ import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import { AppDataSource } from "./data-source";
 import { Socket } from "net";
+import path from "path";
 
 import morgan from "morgan";
 
@@ -56,11 +57,12 @@ class Server {
     this.middlewares();
     this.routers();
     this.serverSocket.startConnection();
-
   }
 
   middlewares() {
     this.app.use(cors());
+    this.app.use(express.static(path.join(__dirname, "videos")));
+    this.app.use(express.static(path.join(__dirname, "uploads")));
     this.app.use(morgan("dev"));
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));

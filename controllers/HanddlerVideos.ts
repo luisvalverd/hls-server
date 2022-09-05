@@ -4,6 +4,7 @@ import { AppDataSource } from "../data-source";
 import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
 import { ServerSocketConnection } from "../App";
+import { resolve } from "path";
 
 dotenv.config();
 
@@ -75,7 +76,40 @@ export class HanddlerVideos {
     return res.status(201).json({ message: "image upload successfuly" });
   };
 
-  getVideo = (req: Request, res: Response): Response => {
-    return res.json({ message: "video" });
+  getVideo = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.body;
+
+    try {
+      let path_stream = await videoRepository.findOne({
+        where: {
+          id_video: id,
+        },
+      });
+
+      let resolve_path: any = resolve(<string>path_stream?.path_stream);
+
+      return <any>res.sendFile(resolve_path);
+    } catch (error) {
+      return res.status(403);
+    }
+  };
+
+  // TODO: make pagination
+  findVideos = async (req: Request, res: Response): Promise<Response> => {
+    const { search_value } = req.body;
+    const { skip } = req.query;
+
+    try {
+      let videos = await videoRepository
+        .createQueryBuilder("videos")
+        .where("videos.title like :value", { value: `%${search_value}%` })
+        .take(10)
+        .skip(<any>skip)
+        .getMany();
+
+      return res.json(videos);
+    } catch (error) {
+      return res.status(403);
+    }
   };
 }
