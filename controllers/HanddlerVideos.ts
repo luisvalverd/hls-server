@@ -94,17 +94,32 @@ export class HanddlerVideos {
     }
   };
 
-  // TODO: make pagination
+  /**
+   * * find videos for title
+   * ? this find relations in searchs_values with titles of videos
+   * @param req
+   * @param res
+   * @returns
+   */
   findVideos = async (req: Request, res: Response): Promise<Response> => {
     const { search_value } = req.body;
-    const { skip } = req.query;
+    let { page } = req.query;
+    let limit = 10;
+
+    let expreg = /[^A-Za-z\W\w]+$/g;
+
+    if (page === undefined || expreg.test(<any>page)) {
+      page = <any>1;
+    }
+
+    let skip = (Number(page) - 1) * limit;
 
     try {
       let videos = await videoRepository
         .createQueryBuilder("videos")
         .where("videos.title like :value", { value: `%${search_value}%` })
-        .take(10)
-        .skip(<any>skip)
+        .take(limit)
+        .skip(skip)
         .getMany();
 
       return res.json(videos);
