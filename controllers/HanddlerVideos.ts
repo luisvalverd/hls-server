@@ -23,14 +23,33 @@ export class HanddlerVideos {
   };
 
   getAllVideos = async (req: Request, res: Response): Promise<Response> => {
-    let videos;
-    try {
-      videos = await videoRepository.find();
-    } catch (error) {
-      return res.status(409).json({ message: "Error not find videos" });
+    let { page } = req.query;
+    const take = 10;
+
+    let expreg = /[^A-Za-z\W\w]+$/g;
+
+    if (page === undefined || expreg.test(<any>page)) {
+      page = <any>1;
     }
 
-    return res.json({ videos });
+    let skip = (Number(page) - 1) * take;
+
+    try {
+      let [list, count] = await videoRepository
+        .createQueryBuilder()
+        .where()
+        .take(take)
+        .skip(skip)
+        .getManyAndCount();
+
+      return res.status(200).json({
+        totalPage: count / take,
+        actualPage: Number(page),
+        videos: list,
+      });
+    } catch (error) {
+      return res.status(409).json({ message: "Error not find any videos" });
+    }
   };
 
   deleteVideo = (req: Request, res: Response) => {
@@ -77,7 +96,7 @@ export class HanddlerVideos {
   };
 
   getVideo = async (req: Request, res: Response): Promise<Response> => {
-    const { id } = req.body;
+    const { id } = req.params;
 
     try {
       let path_stream = await videoRepository.findOne({
@@ -104,7 +123,7 @@ export class HanddlerVideos {
   findVideos = async (req: Request, res: Response): Promise<Response> => {
     const { search_value } = req.body;
     let { page } = req.query;
-    let limit = 10;
+    let take = 12;
 
     let expreg = /[^A-Za-z\W\w]+$/g;
 
@@ -112,17 +131,22 @@ export class HanddlerVideos {
       page = <any>1;
     }
 
-    let skip = (Number(page) - 1) * limit;
+    let skip = (Number(page) - 1) * take;
 
     try {
-      let videos = await videoRepository
+      let [list, count] = await videoRepository
         .createQueryBuilder("videos")
         .where("videos.title like :value", { value: `%${search_value}%` })
-        .take(limit)
+        .take(take)
         .skip(skip)
-        .getMany();
+        .getManyAndCount();
 
-      return res.json(videos);
+      return res.json({
+        totalPages: count / take,
+        actualPage: Number(page),
+        search_value,
+        videos: list,
+      });
     } catch (error) {
       return res.status(403);
     }
