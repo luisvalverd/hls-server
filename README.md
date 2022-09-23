@@ -2,6 +2,10 @@
 
 this is a server of video using hls
 
+## Adverting
+Use the api hls v2
+[1]: https://github.com/luisvalverd/Api_hls_v2 "Api_hls_v2"
+
 ## Dependencies
 
 | Dependencies | Version |
