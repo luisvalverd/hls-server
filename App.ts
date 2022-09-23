@@ -17,6 +17,7 @@ export class ServerSocketConnection {
 
   constructor() {
     this.socket = new Socket();
+    this.socket.setEncoding("utf-8");
   }
 
   startConnection() {
@@ -32,7 +33,7 @@ export class ServerSocketConnection {
   }
 
   converVideo(nameVideo: string) {
-    this.socket.write(nameVideo);
+    this.socket.write(nameVideo + "\n");
     this.socket.on("data", (data) => {
       console.log(data);
     });
@@ -62,6 +63,7 @@ class Server {
   middlewares() {
     this.app.use(cors());
     this.app.use(express.static(path.join(__dirname, "videos")));
+    this.app.use(express.static(path.join(__dirname, "images")))
     this.app.use(express.static(path.join(__dirname, "uploads")));
     this.app.use(morgan("dev"));
     this.app.use(json());

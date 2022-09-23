@@ -37,7 +37,6 @@ export class HanddlerVideos {
     try {
       let [list, count] = await videoRepository
         .createQueryBuilder()
-        .where()
         .take(take)
         .skip(skip)
         .getManyAndCount();
@@ -52,6 +51,7 @@ export class HanddlerVideos {
     }
   };
 
+  // TODO: delete video
   deleteVideo = (req: Request, res: Response) => {
     let { id } = req.params;
     res.json(id);
@@ -81,7 +81,7 @@ export class HanddlerVideos {
     newVideo.title = <string>title;
     newVideo.description = <string>description;
     newVideo.path_video = <string>req.file?.path;
-    newVideo.path_stream = `/upload/${nameFolder}/output.m3u8`;
+    newVideo.path_stream = `/videos/${nameFolder}/output.m3u8`;
 
     try {
       await videoRepository.save(newVideo);
@@ -90,7 +90,8 @@ export class HanddlerVideos {
       return res.status(400).json({ message: "Error in save data of video" });
     }
 
-    this.startWorker(<string>name);
+    // change this name
+    this.startWorker(<string>resolve(`${req.file?.path}`));
 
     return res.status(201).json({ message: "image upload successfuly" });
   };
@@ -114,6 +115,7 @@ export class HanddlerVideos {
   };
 
   /**
+   * TODO: find with uppercase and lowercase search_value
    * * find videos for title
    * ? this find relations in searchs_values with titles of videos
    * @param req
