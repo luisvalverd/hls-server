@@ -81,7 +81,8 @@ export class HanddlerVideos {
     newVideo.title = <string>title;
     newVideo.description = <string>description;
     newVideo.path_video = <string>req.file?.path;
-    newVideo.path_stream = `/videos/${nameFolder}/output.m3u8`;
+    newVideo.path_stream = `videos/${nameFolder}/output.m3u8`;
+    newVideo.path_image = `images/${nameFolder}.jpg`;
 
     try {
       await videoRepository.save(newVideo);
@@ -106,9 +107,10 @@ export class HanddlerVideos {
         },
       });
 
-      let resolve_path: any = resolve(<string>path_stream?.path_stream);
+      //let resolve_path: any = resolve(<string>path_stream?.path_stream);
 
-      return <any>res.sendFile(resolve_path);
+      //return <any>res.sendFile(resolve_path);
+      return res.status(200).json(path_stream);
     } catch (error) {
       return res.status(403);
     }
@@ -138,7 +140,9 @@ export class HanddlerVideos {
     try {
       let [list, count] = await videoRepository
         .createQueryBuilder("videos")
-        .where("videos.title like :value", { value: `%${search_value}%` })
+        .where("LOWER(videos.title) like :value", {
+          value: `%${search_value.toLowerCase()}%`,
+        })
         .take(take)
         .skip(skip)
         .getManyAndCount();
@@ -149,6 +153,40 @@ export class HanddlerVideos {
         search_value,
         videos: list,
       });
+    } catch (error) {
+      return res.status(403);
+    }
+  };
+
+  getRecomendations = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    try {
+      let videos = await videoRepository
+        .createQueryBuilder("videos")
+        .orderBy("RANDOM()")
+        .limit(12)
+        .getMany();
+
+      return res.json(videos);
+    } catch (error) {
+      return res.status(403);
+    }
+  };
+
+  downloadVideo = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    try {
+      let data = await videoRepository
+        .createQueryBuilder("videos")
+        .where("videos.id_video like :id", {
+          id,
+        })
+        .getOne();
+
+      return res.download();
     } catch (error) {
       return res.status(403);
     }

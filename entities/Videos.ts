@@ -16,4 +16,7 @@ export class Video {
 
   @Column({ unique: true, nullable: false })
   path_stream: string;
+
+  @Column({ unique: true })
+  path_image: string;
 }

@@ -62,9 +62,9 @@ class Server {
 
   middlewares() {
     this.app.use(cors());
-    this.app.use(express.static(path.join(__dirname, "videos")));
-    this.app.use(express.static(path.join(__dirname, "images")))
-    this.app.use(express.static(path.join(__dirname, "uploads")));
+    this.app.use("/videos", express.static(path.join(__dirname, "videos")));
+    this.app.use("/images", express.static(path.join(__dirname, "images")));
+    this.app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     this.app.use(morgan("dev"));
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));

@@ -15,5 +15,7 @@ export class VideosRouter extends HanddlerVideos {
     app.route("/videos/:id").delete(this.deleteVideo);
     app.route("/videos").post(this.findVideos);
     app.route("/video/:id").get(this.getVideo);
+    app.route("/recomendations").get(this.getRecomendations);
+    app.route("/download/:id").get(this.downloadVideo);
   }
 }
