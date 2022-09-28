@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, ManyToMany, JoinTable } from "typeorm";
+import { Actor } from "./Actors";
+import { Category } from "./Categories";
 
 @Entity()
 export class Video {
@@ -19,4 +21,37 @@ export class Video {
 
   @Column({ unique: true })
   path_image: string;
+
+  // duration
+  @Column({ type: "int", unique: false })
+  minutes: number;
+
+  @Column({ type: "int", unique: false })
+  seconds: number;
+
+  // categorization
+  @ManyToMany(() => Category, (category) => category.videos)
+  @JoinTable({
+    name: "videos_categories",
+    joinColumn: {
+      name: "id_video",
+    },
+    inverseJoinColumn: {
+      name: "id_category",
+    },
+  })
+  categories: Category[];
+
+  // actors
+  @ManyToMany(() => Actor, (actor) => actor.videos)
+  @JoinTable({
+    name: "videos_actors",
+    joinColumn: {
+      name: "id_video",
+    },
+    inverseJoinColumn: {
+      name: "id_actor",
+    },
+  })
+  actors: Actor[];
 }

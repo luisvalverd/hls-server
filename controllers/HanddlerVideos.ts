@@ -4,14 +4,16 @@ import { AppDataSource } from "../data-source";
 import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
 import { ServerSocketConnection } from "../App";
-import { resolve } from "path";
+import { resolve, basename } from "path";
+import mime from "mime";
+import fs from "fs";
+import { getVideoDuration } from "get-video-duration";
 
 dotenv.config();
 
 var videoRepository = AppDataSource.getRepository(Video);
 
 export class HanddlerVideos {
-  //videoRepository = AppDataSource.getRepository(Video);
   server: ServerSocketConnection;
 
   constructor(server: ServerSocketConnection) {
@@ -83,6 +85,11 @@ export class HanddlerVideos {
     newVideo.path_video = <string>req.file?.path;
     newVideo.path_stream = `videos/${nameFolder}/output.m3u8`;
     newVideo.path_image = `images/${nameFolder}.jpg`;
+    // TODO: add duration in seconds and minutes;
+    newVideo.minutes = 1;
+    newVideo.seconds = 30;
+    // TODO: add actor
+    // TODO: add categories;
 
     try {
       await videoRepository.save(newVideo);
@@ -107,9 +114,6 @@ export class HanddlerVideos {
         },
       });
 
-      //let resolve_path: any = resolve(<string>path_stream?.path_stream);
-
-      //return <any>res.sendFile(resolve_path);
       return res.status(200).json(path_stream);
     } catch (error) {
       return res.status(403);
@@ -117,7 +121,6 @@ export class HanddlerVideos {
   };
 
   /**
-   * TODO: find with uppercase and lowercase search_value
    * * find videos for title
    * ? this find relations in searchs_values with titles of videos
    * @param req
@@ -175,7 +178,7 @@ export class HanddlerVideos {
     }
   };
 
-  downloadVideo = async (req: Request, res: Response): Promise<Response> => {
+  downloadVideo = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
@@ -185,8 +188,15 @@ export class HanddlerVideos {
           id,
         })
         .getOne();
+      let file = resolve(<string>data?.path_video);
 
-      return res.download();
+      let filename = basename(file);
+      let minetype = mime.lookup(file);
+
+      res.setHeader("Content-disposition", "attachmen; filename=" + filename);
+      res.setHeader("Content-type", minetype);
+
+      res.download(file);
     } catch (error) {
       return res.status(403);
     }
