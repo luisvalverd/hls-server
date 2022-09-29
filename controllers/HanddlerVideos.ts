@@ -7,7 +7,7 @@ import { ServerSocketConnection } from "../App";
 import { resolve, basename } from "path";
 import mime from "mime";
 import fs from "fs";
-import { getVideoDuration } from "get-video-duration";
+import { getVideoDurationInSeconds } from "get-video-duration";
 
 dotenv.config();
 
@@ -85,11 +85,9 @@ export class HanddlerVideos {
     newVideo.path_video = <string>req.file?.path;
     newVideo.path_stream = `videos/${nameFolder}/output.m3u8`;
     newVideo.path_image = `images/${nameFolder}.jpg`;
-    // TODO: add duration in seconds and minutes;
-    newVideo.minutes = 1;
-    newVideo.seconds = 30;
-    // TODO: add actor
-    // TODO: add categories;
+    let duration: any = await this.getDuration(<string>req.file?.path);
+    newVideo.minutes = <number>duration.minutes;
+    newVideo.seconds = <number>duration.seconds;
 
     try {
       await videoRepository.save(newVideo);
@@ -101,7 +99,21 @@ export class HanddlerVideos {
     // change this name
     this.startWorker(<string>resolve(`${req.file?.path}`));
 
-    return res.status(201).json({ message: "image upload successfuly" });
+    return res.status(201).json({ message: "video upload successfuly" });
+  };
+
+  private getDuration = async (path: string) => {
+    let getpath = resolve(path);
+    let duration = await getVideoDurationInSeconds(getpath);
+
+    let minutes = duration / 60;
+    let getSeconds = duration / 60 - Math.floor(minutes);
+    let seconds = getSeconds * 60;
+
+    return {
+      minutes: Math.floor(minutes),
+      seconds: Math.floor(seconds),
+    };
   };
 
   getVideo = async (req: Request, res: Response): Promise<Response> => {

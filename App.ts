@@ -1,7 +1,10 @@
 import express from "express";
 import * as http from "http";
 import dotenv from "dotenv";
+//router
 import { VideosRouter } from "./routers/Videos";
+import { ActorsRouter } from "./routers/Actors";
+
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import { AppDataSource } from "./data-source";
@@ -50,6 +53,7 @@ class Server {
   private port: number;
   public serverSocket: ServerSocketConnection = new ServerSocketConnection();
   public videosRouter: VideosRouter = new VideosRouter(this.serverSocket);
+  public actorsRouter: ActorsRouter = new ActorsRouter();
 
   constructor() {
     this.app = express();
@@ -72,6 +76,7 @@ class Server {
 
   routers(): void {
     this.videosRouter.routers(this.app);
+    this.actorsRouter.routers(this.app);
   }
 
   listen(): void {

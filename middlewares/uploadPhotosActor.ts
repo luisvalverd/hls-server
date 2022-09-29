@@ -24,10 +24,14 @@ var upload = multer({
   },
 }).single("actor");
 
-export function uploadImage(req: Request, res: Response, next: NextFunction) {
+export function uploadImageActor(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      return res.status(409).json({ message: "Error in upload video" });
+      return res.status(409).json({ message: "Error in upload image" });
     }
     if (err) {
       return res.status(409).json({ message: "Error in upload" });

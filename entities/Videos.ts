@@ -23,10 +23,10 @@ export class Video {
   path_image: string;
 
   // duration
-  @Column({ type: "int", unique: false })
+  @Column({ unique: false })
   minutes: number;
 
-  @Column({ type: "int", unique: false })
+  @Column({ unique: false })
   seconds: number;
 
   // categorization

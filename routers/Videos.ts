@@ -8,7 +8,6 @@ export class VideosRouter extends HanddlerVideos {
     super(server);
   }
 
-  //TODO: add pagination to all-videos
   routers(app: express.Express): void {
     app.route("/all-videos").get(this.getAllVideos);
     app.route("/upload-video").post(uploadVideos, this.uploadVideo);
