@@ -14,7 +14,7 @@ export class Actor {
   @Column({ unique: false })
   lastname: string;
 
-  @Column({ type: "int", unique: true })
+  @Column({ type: "int", unique: false })
   ranking: number;
 
   @Column({ unique: false })
@@ -23,6 +23,6 @@ export class Actor {
   @Column({ unique: false })
   avatar: string;
 
-  @ManyToMany(() => Video, (video) => video.actors)
+  @ManyToMany(() => Video, (video) => video.actors, { onDelete: "CASCADE" })
   videos: Video[];
 }
