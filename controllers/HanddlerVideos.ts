@@ -134,7 +134,6 @@ export class HanddlerVideos {
 
   /**
    * * find videos for title
-   * TODO: find by actor or category too
    * ? this find relations in searchs_values with titles of videos
    * @param req
    * @param res
@@ -156,9 +155,16 @@ export class HanddlerVideos {
     try {
       let [list, count] = await videoRepository
         .createQueryBuilder("videos")
-        .where("LOWER(videos.title) like :value", {
-          value: `%${search_value.toLowerCase()}%`,
-        })
+        .leftJoinAndSelect("videos.categories", "category")
+        .leftJoinAndSelect("videos.actors", "actor")
+        .where(
+          "LOWER(videos.title) like :title OR LOWER(category.name) like :category OR LOWER(actor.nickname) like :actor",
+          {
+            title: `%${search_value.toLowerCase()}%`,
+            category: `%${search_value.toLowerCase()}%`,
+            actor: `%${search_value.toLowerCase()}%`,
+          }
+        )
         .take(take)
         .skip(skip)
         .getManyAndCount();
