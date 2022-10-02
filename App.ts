@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 //router
 import { VideosRouter } from "./routers/Videos";
 import { ActorsRouter } from "./routers/Actors";
+import { CategoriesRouter } from "./routers/Categories";
 
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
@@ -52,8 +53,10 @@ class Server {
   public server: http.Server;
   private port: number;
   public serverSocket: ServerSocketConnection = new ServerSocketConnection();
+  // categories instance
   public videosRouter: VideosRouter = new VideosRouter(this.serverSocket);
   public actorsRouter: ActorsRouter = new ActorsRouter();
+  public categoriesRouter: CategoriesRouter = new CategoriesRouter();
 
   constructor() {
     this.app = express();
@@ -77,6 +80,7 @@ class Server {
   routers(): void {
     this.videosRouter.routers(this.app);
     this.actorsRouter.routers(this.app);
+    this.categoriesRouter.routers(this.app);
   }
 
   listen(): void {

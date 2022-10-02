@@ -9,6 +9,9 @@ export class Category {
   @Column({ unique: true })
   name: string;
 
-  @ManyToMany(() => Video, (video) => video.categories)
+  @Column({ type: "int", unique: false, nullable: false })
+  total_videos: number;
+
+  @ManyToMany(() => Video, (video) => video.categories, { onDelete: "CASCADE" })
   videos: Video[];
 }

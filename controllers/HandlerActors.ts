@@ -7,10 +7,7 @@ import { Video } from "../entities/Videos";
 import { v4 as uuid } from "uuid";
 
 /**
- * TODO: create of autor
- * TODO: update info of autor
- * TODO: delete autor
- * TODO: buscador if existe autor
+ * TODO: Update Actor
  */
 
 let actorRepository = AppDataSource.getRepository(Actor);
@@ -25,7 +22,7 @@ export class HandlerActors {
 
   createActor = async (req: Request, res: Response): Promise<Response> => {
     let actor = req.file?.path;
-    const { name, lastname, gender } = req.body;
+    const { nickname, gender } = req.body;
 
     if (!actor) {
       return res.status(304).json({ message: "Error in find image" });
@@ -41,8 +38,7 @@ export class HandlerActors {
     let newActor = new Actor();
 
     newActor.id_actor = uuid();
-    newActor.name = <string>name;
-    newActor.lastname = <string>lastname;
+    newActor.nickname = <string>nickname;
     newActor.ranking = 0;
     newActor.gender = <string>gender;
     newActor.avatar = <string>req.file?.path;
@@ -57,11 +53,20 @@ export class HandlerActors {
     return res.status(201).json({ message: "image upload successfuly" });
   };
 
-  // TODO: delete video
   deleteActor = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
 
-    return res.json(id);
+    try {
+      await actorRepository
+        .createQueryBuilder()
+        .delete()
+        .from(Actor)
+        .where("id_actor = :value", { value: `${id}` })
+        .execute();
+      return res.json({ message: "delete successfulty" });
+    } catch (error) {
+      return res.status(418).json({ message: "can not delete actor" });
+    }
   };
 
   /**
@@ -85,7 +90,6 @@ export class HandlerActors {
       let [list, count] = await videoRepository
         .createQueryBuilder("videos")
         .leftJoinAndSelect("videos.actors", "actor")
-        .relations("actors")
         .where("actors.id_actor like :value", {
           value: `${id}`,
         })
@@ -152,6 +156,39 @@ export class HandlerActors {
       return res.json({ message: "update successfulty" });
     } catch (error) {
       return res.status(304).json({ message: "not found add actor to video" });
+    }
+  };
+
+  findActor = async (req: Request, res: Response): Promise<Response> => {
+    const { nickname } = req.body;
+    let { page } = req.query;
+    let take = 12;
+
+    let expreg = /[^A-Za-z\W\w]+$/g;
+
+    if (page === undefined || expreg.test(<any>page)) {
+      page = <any>1;
+    }
+
+    let skip = (Number(page) - 1) * take;
+
+    try {
+      let [list, count] = await actorRepository
+        .createQueryBuilder("actors")
+        .where("LOWER(actors.nickname) like :value", {
+          value: `%${nickname.toLowerCase()}%`,
+        })
+        .take(take)
+        .skip(skip)
+        .getManyAndCount();
+
+      return res.json({
+        totalPages: count / take,
+        actualPage: Number(page),
+        list,
+      });
+    } catch (error) {
+      return res.status(204).json({ message: "dont find any actor" });
     }
   };
 }

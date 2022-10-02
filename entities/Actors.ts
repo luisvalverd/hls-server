@@ -8,11 +8,8 @@ export class Actor {
   @PrimaryColumn({ unique: true, nullable: false })
   id_actor: string;
 
-  @Column({ unique: false })
-  name: string;
-
-  @Column({ unique: false })
-  lastname: string;
+  @Column({ unique: true, nullable: false })
+  nickname: string;
 
   @Column({ type: "int", unique: false })
   ranking: number;
