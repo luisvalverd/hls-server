@@ -7,7 +7,7 @@ export class CategoriesRouter extends HandlerCategories {
     app.route("/category/:id").delete(this.deleteCategory);
     app.route("/category/:id").put(this.updateCategory);
     app.route("/add-video-to-category").get(this.addVideoToCategory);
-    app.route("/videos-by-category/:id").get(this.getVideosByCategory);
+    app.route("/videos-by-category/:name").get(this.getVideosByCategory);
     app.route("/all-categories").get(this.getAllCategories);
   }
 }

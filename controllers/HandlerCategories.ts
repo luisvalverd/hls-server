@@ -131,7 +131,7 @@ export class HandlerCategories {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    const { id } = req.params;
+    const { name } = req.params;
     let { page } = req.query;
     let take = 12;
 
@@ -147,8 +147,8 @@ export class HandlerCategories {
       let [list, count] = await videoRepository
         .createQueryBuilder("videos")
         .leftJoinAndSelect("videos.categories", "category")
-        .where("category.id_category like :value", {
-          value: <string>id,
+        .where("category.name like :value", {
+          value: <string>name,
         })
         .take(take)
         .skip(skip)

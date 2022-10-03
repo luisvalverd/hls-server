@@ -38,13 +38,14 @@ export class HanddlerVideos {
 
     try {
       let [list, count] = await videoRepository
-        .createQueryBuilder()
+        .createQueryBuilder("videos")
+        .leftJoinAndSelect("videos.categories", "category")
         .take(take)
         .skip(skip)
         .getManyAndCount();
 
       return res.status(200).json({
-        totalPage: count / take,
+        totalPages: count / take,
         actualPage: Number(page),
         videos: list,
       });
