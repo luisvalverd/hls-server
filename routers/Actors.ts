@@ -10,5 +10,6 @@ export class ActorsRouter extends HandlerActors {
     app.route("/all-actors").get(this.getAllActors);
     app.route("/add-actor-in-video").get(this.addActorsToVideo);
     app.route("/actor-find").post(this.findActor);
+    app.route("/actor-by-id/:id").get(this.getActorById);
   }
 }

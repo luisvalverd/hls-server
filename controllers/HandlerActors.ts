@@ -90,7 +90,8 @@ export class HandlerActors {
       let [list, count] = await videoRepository
         .createQueryBuilder("videos")
         .leftJoinAndSelect("videos.actors", "actor")
-        .where("actors.id_actor like :value", {
+        .leftJoinAndSelect("videos.categories", "category")
+        .where("actor.id_actor like :value", {
           value: `${id}`,
         })
         .take(take)
@@ -189,6 +190,23 @@ export class HandlerActors {
       });
     } catch (error) {
       return res.status(204).json({ message: "dont find any actor" });
+    }
+  };
+
+  getActorById = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    try {
+      let actor = await actorRepository
+        .createQueryBuilder("actor")
+        .where("actor.id_actor like :value", {
+          value: <string>id,
+        })
+        .getOne();
+
+      return res.json(actor);
+    } catch (error) {
+      return res.status(400).json({ message: "Error in find actor" });
     }
   };
 }
