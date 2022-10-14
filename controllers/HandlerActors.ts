@@ -109,13 +109,23 @@ export class HandlerActors {
   };
 
   getAllActors = async (req: Request, res: Response): Promise<Response> => {
-    let { page } = req.query;
+    let { page, notPagination } = req.query;
     let take = 12;
 
     let expreg = /[^A-Za-z\W\w]+$/g;
 
     if (page === undefined || expreg.test(<any>page)) {
       page = <any>1;
+    }
+
+    // get all dont pagination
+    if (notPagination !== undefined && notPagination === "true") {
+      try {
+        let actors = await actorRepository.createQueryBuilder().getMany();
+        return res.json(actors);
+      } catch (err) {
+        return res.status(400).json({ message: "Error in get all actors" });
+      }
     }
 
     let skip = (Number(page) - 1) * take;
@@ -138,21 +148,28 @@ export class HandlerActors {
   };
 
   addActorsToVideo = async (req: Request, res: Response): Promise<Response> => {
-    const { actorId, videoId } = req.query;
+    const { videoId } = req.query;
+    const { actorsIds } = req.body;
+
+    if (actorsIds.length === 0) {
+      return res.status(400).json({ message: "Error not have actors" });
+    }
 
     try {
-      let actor = await actorRepository
-        .createQueryBuilder("actors")
-        .where("actors.id_actor like :value", {
-          value: `${actorId}`,
-        })
-        .getOne();
+      for (let actorId of actorsIds) {
+        let actor = await actorRepository
+          .createQueryBuilder("actors")
+          .where("actors.id_actor like :value", {
+            value: `${actorId}`,
+          })
+          .getOne();
 
-      await videoRepository
-        .createQueryBuilder()
-        .relation(Video, "actors")
-        .of(`${videoId}`)
-        .add(actor);
+        await videoRepository
+          .createQueryBuilder()
+          .relation(Video, "actors")
+          .of(`${videoId}`)
+          .add(actor);
+      }
 
       return res.json({ message: "update successfulty" });
     } catch (error) {

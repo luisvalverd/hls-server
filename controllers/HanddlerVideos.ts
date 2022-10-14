@@ -77,10 +77,12 @@ export class HanddlerVideos {
     let name = req.file?.path.split("/")[1];
     let nameFolder = name?.split(".")[0];
 
+    let idVideo = uuid();
+
     // instance data of video
     let newVideo = new Video();
 
-    newVideo.id_video = uuid();
+    newVideo.id_video = <string>idVideo;
     newVideo.title = <string>title;
     newVideo.description = <string>description;
     newVideo.path_video = <string>req.file?.path;
@@ -100,7 +102,9 @@ export class HanddlerVideos {
     // change this name
     this.startWorker(<string>resolve(`${req.file?.path}`));
 
-    return res.status(201).json({ message: "video upload successfuly" });
+    return res
+      .status(201)
+      .json({ message: "video upload successfuly", id_video: idVideo });
   };
 
   private getDuration = async (path: string) => {
@@ -121,11 +125,14 @@ export class HanddlerVideos {
     const { id } = req.params;
 
     try {
-      let path_stream = await videoRepository.findOne({
-        where: {
-          id_video: id,
-        },
-      });
+      let path_stream = await videoRepository
+        .createQueryBuilder("video")
+        .leftJoinAndSelect("video.actors", "actor")
+        .leftJoinAndSelect("video.categories", "category")
+        .where("video.id_video like :value", {
+          value: <string>id,
+        })
+        .getOne();
 
       return res.status(200).json(path_stream);
     } catch (error) {
